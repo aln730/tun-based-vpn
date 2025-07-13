@@ -33,12 +33,15 @@ func (r *Router) tunToPipe() {
 			if err == io.EOF {
 				break
 			}
-			log.Printf("read from tun error: %v", err)
+			log.Printf("[tunToPipe] read from tun error: %v", err)
 			continue
 		}
+
 		err = r.pipe.Send(buf[:n])
 		if err != nil {
-			log.Printf("send to pipe error: %v", err)
+			log.Printf("[tunToPipe] send to pipe error: %v", err)
+		} else {
+			log.Printf("[tunToPipe] sent %d bytes", n)
 		}
 	}
 }
@@ -48,12 +51,15 @@ func (r *Router) pipeToTun() {
 	for {
 		data, n, err := r.pipe.Receive(buf)
 		if err != nil {
-			log.Printf("receive from pipe error: %v", err)
+			log.Printf("[pipeToTun] receive from pipe error: %v", err)
 			continue
 		}
+
 		_, err = r.ifce.Write(data[:n])
 		if err != nil {
-			log.Printf("write to tun error: %v", err)
+			log.Printf("[pipeToTun] write to tun error: %v", err)
+		} else {
+			log.Printf("[pipeToTun] wrote %d bytes to tun", n)
 		}
 	}
 }
